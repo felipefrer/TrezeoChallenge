@@ -52,7 +52,10 @@ namespace TrezeoChallenge.Service
                 }
                 else
                 {
-                    LstKnownWord.Add(word);
+                    if (!LstKnownWord.Contains(word))
+                    {
+                        LstKnownWord.Add(word);
+                    }
                 }
             });
         }
