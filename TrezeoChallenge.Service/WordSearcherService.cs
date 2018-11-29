@@ -66,7 +66,6 @@ namespace TrezeoChallenge.Service
         {
             WordsReader(lstFileLines);
 
-            var lstDistinct = LstKnownWord.GroupBy(x => x).Where(x => x.Count() > 1).Select(x => x.Key).ToList();
             var lstResult = LstUnknownWord.Except(LstKnownWord).ToList(); ;
 
             return lstResult.FirstOrDefault();

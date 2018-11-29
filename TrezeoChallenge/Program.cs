@@ -7,12 +7,14 @@ namespace TrezeoChallenge
     {
         static void Main(string[] args)
         {
-            var file = new FileReaderService(@"P:\Trezeo\TrezeoChallenge\file.txt");
+            var filePath = Environment.CurrentDirectory + @"\file.txt";
+
+            var file = new FileReaderService(filePath);
 
             var searchWord = new WordSearcherService();
             var firstUnknownWord = searchWord.GetFirstUnknownWord(file.GetTxtFileLines());
 
-            Console.WriteLine(firstUnknownWord);
+            Console.WriteLine("The first non-repeated word is: " + firstUnknownWord);
 
             Console.ReadKey();
         }
