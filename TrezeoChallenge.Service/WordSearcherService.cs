@@ -12,6 +12,8 @@ namespace TrezeoChallenge.Service
         {
             LstKnownWord = new List<string>();
             LstUnknownWord = new List<string>();
+            DicUnknownWord = new Dictionary<string, string>();
+            DicKnownWord = new Dictionary<string, string>();
         }
 
         #endregion
@@ -21,6 +23,9 @@ namespace TrezeoChallenge.Service
         private List<string> LstKnownWord;
         private List<string> LstUnknownWord;
 
+        private Dictionary<string, string> DicUnknownWord;
+        private Dictionary<string, string> DicKnownWord;
+
         #endregion
 
         #region Methods
@@ -29,32 +34,66 @@ namespace TrezeoChallenge.Service
         /// Method responsable for read all file lines.
         /// </summary>
         /// <param name="lstFileLines"></param>
-        public void WordsReader(List<string> lstFileLines)
+        public void WordsReaderLst(List<string> lstFileLines)
         {
-            lstFileLines.ForEach(line => GetWords(line));
+            lstFileLines.ForEach(line => GetWordsUsingList(line));
+        }
+
+        public void WordsReaderDic(List<string> lstFileLines)
+        {
+            lstFileLines.ForEach(line => GetWordsUsingDictionary(line));
         }
 
         /// <summary>
         /// Method responsable for get UnknownWord and knownWord from the file lines.
         /// </summary>
         /// <param name="line"></param>
-        private void GetWords(string line)
+        private void GetWordsUsingList(string line)
         {
             var lineWords = line.Split(' ').ToList();
 
             lineWords.ForEach(word => 
             {
-                word = Regex.Replace(word, "[^a-zA-Z]+", "");
+                word = Regex.Replace(word, "[^a-zA-Z]+", "").ToLower();
                 
-                if (!LstUnknownWord.Contains(word.ToLower()))
+                if (!LstKnownWord.Contains(word) && !LstUnknownWord.Contains(word))
                 {
-                    LstUnknownWord.Add(word.ToLower());
+                    LstUnknownWord.Add(word);
                 }
                 else
                 {
                     if (!LstKnownWord.Contains(word))
                     {
                         LstKnownWord.Add(word);
+                        LstUnknownWord.Remove(word);
+                    }
+                }
+            });
+        }
+
+        /// <summary>
+        /// Method responsable for get UnknownWord and knownWord from the file lines.
+        /// </summary>
+        /// <param name="line"></param>
+        private void GetWordsUsingDictionary(string line)
+        {
+            var lineWords = line.Split(' ').ToList();
+
+            lineWords.ForEach(word =>
+            {
+                word = Regex.Replace(word, "[^a-zA-Z]+", "");
+                var keyWord = word.ToLower();
+
+                if (!DicKnownWord.ContainsKey(keyWord) && !DicUnknownWord.ContainsKey(keyWord))
+                {
+                    DicUnknownWord.Add(keyWord, word);
+                }
+                else
+                {
+                    if (!DicKnownWord.ContainsKey(keyWord))
+                    {
+                        DicKnownWord.Add(keyWord, word);
+                        DicUnknownWord.Remove(keyWord);
                     }
                 }
             });
@@ -65,13 +104,18 @@ namespace TrezeoChallenge.Service
         /// </summary>
         /// <param name="lstFileLines"></param>
         /// <returns></returns>
-        public string GetFirstUnknownWord(List<string> lstFileLines)
+        public string GetFirstUnknownWordByList(List<string> lstFileLines)
         {
-            WordsReader(lstFileLines);
+            WordsReaderLst(lstFileLines);
 
-            var lstResult = LstUnknownWord.Except(LstKnownWord).ToList(); ;
+            return LstUnknownWord.FirstOrDefault();
+        }
 
-            return lstResult.FirstOrDefault();
+        public string GetFirstUnknownWordByDictionary(List<string> lstFileLines)
+        {
+            WordsReaderDic(lstFileLines);
+
+            return DicUnknownWord.FirstOrDefault().Value;
         }
 
         #endregion
